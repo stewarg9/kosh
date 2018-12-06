@@ -19,9 +19,9 @@
 
 
 
-ALTER TABLE "kosh"."filewindow_load_stats" DROP CONSTRAINT IF EXISTS "Relationship64"
+ALTER TABLE "kosh"."file_window_load_stats" DROP CONSTRAINT IF EXISTS "Relationship64"
 ;
-ALTER TABLE "kosh"."filelinux_load_stats" DROP CONSTRAINT IF EXISTS "Relationship63"
+ALTER TABLE "kosh"."file_linux_load_stats" DROP CONSTRAINT IF EXISTS "Relationship63"
 ;
 ALTER TABLE "kosh"."unstructured_load_stats" DROP CONSTRAINT IF EXISTS "Relationship62"
 ;
@@ -87,13 +87,13 @@ ALTER TABLE "kosh"."datastore_domain" DROP CONSTRAINT IF EXISTS "domain_assignme
 
 ALTER TABLE "kosh"."unstructured_load_stats" DROP CONSTRAINT IF EXISTS "Key50"
 ;
-ALTER TABLE "kosh"."filewindow_load_stats" DROP CONSTRAINT IF EXISTS "Key502"
+ALTER TABLE "kosh"."file_window_load_stats" DROP CONSTRAINT IF EXISTS "Key502"
 ;
 ALTER TABLE "kosh"."file_window_entity" DROP CONSTRAINT IF EXISTS "Key171"
 ;
 ALTER TABLE "kosh"."hive_datatype_mapping" DROP CONSTRAINT IF EXISTS "Key53"
 ;
-ALTER TABLE "kosh"."filelinux_load_stats" DROP CONSTRAINT IF EXISTS "Key501"
+ALTER TABLE "kosh"."file_linux_load_stats" DROP CONSTRAINT IF EXISTS "Key501"
 ;
 ALTER TABLE "kosh"."job_load_result" DROP CONSTRAINT IF EXISTS "Key49"
 ;
@@ -233,7 +233,7 @@ DROP TABLE IF EXISTS "kosh"."data_spider_verificaton"
 ;
 DROP TABLE IF EXISTS "kosh"."database_properties"
 ;
-DROP TABLE IF EXISTS "kosh"."filewindow_load_stats"
+DROP TABLE IF EXISTS "kosh"."file_window_load_stats"
 ;
 DROP TABLE IF EXISTS "kosh"."file_window_entity"
 ;
@@ -243,7 +243,7 @@ DROP TABLE IF EXISTS "kosh"."process_id_table_map"
 ;
 DROP TABLE IF EXISTS "kosh"."connection_error"
 ;
-DROP TABLE IF EXISTS "kosh"."filelinux_load_stats"
+DROP TABLE IF EXISTS "kosh"."file_linux_load_stats"
 ;
 DROP TABLE IF EXISTS "kosh"."job_load_result"
 ;
@@ -1931,9 +1931,9 @@ COMMENT ON COLUMN "kosh"."job_load_result"."start_ts" IS 'Starting timestamp'
 ;
 
 
--- Table kosh filelinux_load_stats
+-- Table kosh file_linux_load_stats
 
-CREATE TABLE "kosh"."filelinux_load_stats"(
+CREATE TABLE "kosh"."file_linux_load_stats"(
  "entity_id" Bigint NOT NULL,
  "crawl_id" Bigint,
  "file_name" Text,
@@ -1945,26 +1945,26 @@ CREATE TABLE "kosh"."filelinux_load_stats"(
  "mod_ts" Timestamp
 )
 ;
-COMMENT ON COLUMN "kosh"."filelinux_load_stats"."entity_id" IS 'A unique id given to the file'
+COMMENT ON COLUMN "kosh"."file_linux_load_stats"."entity_id" IS 'A unique id given to the file'
 ;
-COMMENT ON COLUMN "kosh"."filelinux_load_stats"."crawl_id" IS 'see parent'
+COMMENT ON COLUMN "kosh"."file_linux_load_stats"."crawl_id" IS 'see parent'
 ;
-COMMENT ON COLUMN "kosh"."filelinux_load_stats"."file_name" IS 'Name of the file'
+COMMENT ON COLUMN "kosh"."file_linux_load_stats"."file_name" IS 'Name of the file'
 ;
-COMMENT ON COLUMN "kosh"."filelinux_load_stats"."harfile_name" IS 'Name given to compressed set of files'
+COMMENT ON COLUMN "kosh"."file_linux_load_stats"."harfile_name" IS 'Name given to compressed set of files'
 ;
-COMMENT ON COLUMN "kosh"."filelinux_load_stats"."crt_by" IS 'Indicates the process or entity that created the record'
+COMMENT ON COLUMN "kosh"."file_linux_load_stats"."crt_by" IS 'Indicates the process or entity that created the record'
 ;
-COMMENT ON COLUMN "kosh"."filelinux_load_stats"."crt_ts" IS 'The time at which the record was created'
+COMMENT ON COLUMN "kosh"."file_linux_load_stats"."crt_ts" IS 'The time at which the record was created'
 ;
-COMMENT ON COLUMN "kosh"."filelinux_load_stats"."mod_by" IS 'Indicates the process or entity that modified the record.'
+COMMENT ON COLUMN "kosh"."file_linux_load_stats"."mod_by" IS 'Indicates the process or entity that modified the record.'
 ;
-COMMENT ON COLUMN "kosh"."filelinux_load_stats"."mod_ts" IS 'Indicates the last time the record was modified.'
+COMMENT ON COLUMN "kosh"."file_linux_load_stats"."mod_ts" IS 'Indicates the last time the record was modified.'
 ;
 
--- Add keys for table kosh filelinux_load_stats
+-- Add keys for table kosh file_linux_load_stats
 
-ALTER TABLE "kosh"."filelinux_load_stats" ADD CONSTRAINT "Key501" PRIMARY KEY ("entity_id")
+ALTER TABLE "kosh"."file_linux_load_stats" ADD CONSTRAINT "Key501" PRIMARY KEY ("entity_id")
 ;
 
 -- Table kosh connection_error
@@ -2157,9 +2157,9 @@ CREATE INDEX "IX_Relationship58" ON "kosh"."file_window_entity" ("datastore_id",
 ALTER TABLE "kosh"."file_window_entity" ADD CONSTRAINT "Key171" PRIMARY KEY ("datastore_id","component_id","entity_id")
 ;
 
--- Table kosh filewindow_load_stats
+-- Table kosh file_window_load_stats
 
-CREATE TABLE "kosh"."filewindow_load_stats"(
+CREATE TABLE "kosh"."file_window_load_stats"(
  "datastore_id"  Bigint NOT NULL,
  "component_id" Bigint NOT NULL,
  "entity_id" Bigint NOT NULL,
@@ -2174,29 +2174,29 @@ CREATE TABLE "kosh"."filewindow_load_stats"(
  "mod_ts" Timestamp
 )
 ;
-COMMENT ON COLUMN "kosh"."filewindow_load_stats"."datastore_id" IS 'see parent'
+COMMENT ON COLUMN "kosh"."file_window_load_stats"."datastore_id" IS 'see parent'
 ;
-COMMENT ON COLUMN "kosh"."filewindow_load_stats"."component_id" IS 'see parent'
+COMMENT ON COLUMN "kosh"."file_window_load_stats"."component_id" IS 'see parent'
 ;
-COMMENT ON COLUMN "kosh"."filewindow_load_stats"."entity_id" IS 'A unique id given to the file'
+COMMENT ON COLUMN "kosh"."file_window_load_stats"."entity_id" IS 'A unique id given to the file'
 ;
-COMMENT ON COLUMN "kosh"."filewindow_load_stats"."crawl_id" IS 'see parent'
+COMMENT ON COLUMN "kosh"."file_window_load_stats"."crawl_id" IS 'see parent'
 ;
-COMMENT ON COLUMN "kosh"."filewindow_load_stats"."file_name" IS 'Name of the file'
+COMMENT ON COLUMN "kosh"."file_window_load_stats"."file_name" IS 'Name of the file'
 ;
-COMMENT ON COLUMN "kosh"."filewindow_load_stats"."harfile_name" IS 'Name given to compressed set of files '
+COMMENT ON COLUMN "kosh"."file_window_load_stats"."harfile_name" IS 'Name given to compressed set of files '
 ;
-COMMENT ON COLUMN "kosh"."filewindow_load_stats"."crt_by" IS 'Indicates the process or entity that created the record'
+COMMENT ON COLUMN "kosh"."file_window_load_stats"."crt_by" IS 'Indicates the process or entity that created the record'
 ;
-COMMENT ON COLUMN "kosh"."filewindow_load_stats"."crt_ts" IS 'The time at which the record was created'
+COMMENT ON COLUMN "kosh"."file_window_load_stats"."crt_ts" IS 'The time at which the record was created'
 ;
-COMMENT ON COLUMN "kosh"."filewindow_load_stats"."mod_by" IS 'Indicates the process or entity that modified the record.'
+COMMENT ON COLUMN "kosh"."file_window_load_stats"."mod_by" IS 'Indicates the process or entity that modified the record.'
 ;
-COMMENT ON COLUMN "kosh"."filewindow_load_stats"."mod_ts" IS 'Indicates the last time the record was modified.'
+COMMENT ON COLUMN "kosh"."file_window_load_stats"."mod_ts" IS 'Indicates the last time the record was modified.'
 ;
--- Add keys for table kosh filewindow_load_stats
+-- Add keys for table kosh file_window_load_stats
 
-ALTER TABLE "kosh"."filewindow_load_stats" ADD CONSTRAINT "Key502" PRIMARY KEY ("datastore_id","component_id","entity_id")
+ALTER TABLE "kosh"."file_window_load_stats" ADD CONSTRAINT "Key502" PRIMARY KEY ("datastore_id","component_id","entity_id")
 ;
 
 -- Table kosh database_properties
@@ -2380,10 +2380,10 @@ ALTER TABLE "kosh"."file_linux_entity" ADD CONSTRAINT "Relationship59" FOREIGN K
 ALTER TABLE "kosh"."unstructured_load_stats" ADD CONSTRAINT "Relationship62" FOREIGN KEY ("datastore_id", "component_id", "entity_id") REFERENCES "kosh"."unstructured_entity" ("datastore_id", "component_id", "entity_id") ON DELETE NO ACTION ON UPDATE NO ACTION
 ;
 
-ALTER TABLE "kosh"."filelinux_load_stats" ADD CONSTRAINT "Relationship63" FOREIGN KEY ("entity_id") REFERENCES "kosh"."file_linux_entity" ("entity_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+ALTER TABLE "kosh"."file_linux_load_stats" ADD CONSTRAINT "Relationship63" FOREIGN KEY ("entity_id") REFERENCES "kosh"."file_linux_entity" ("entity_id") ON DELETE NO ACTION ON UPDATE NO ACTION
 ;
 
-ALTER TABLE "kosh"."filewindow_load_stats" ADD CONSTRAINT "Relationship64" FOREIGN KEY ("entity_id", "datastore_id", "component_id") REFERENCES "kosh"."file_window_entity" ("entity_id", "datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+ALTER TABLE "kosh"."file_window_load_stats" ADD CONSTRAINT "Relationship64" FOREIGN KEY ("entity_id", "datastore_id", "component_id") REFERENCES "kosh"."file_window_entity" ("entity_id", "datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
 ;
 
 
