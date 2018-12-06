@@ -310,6 +310,11 @@ DROP TABLE IF EXISTS "kosh"."datastore_domain"
 DROP TABLE IF EXISTS "kosh"."datastore_inventory"
 ;
 
+DROP TABLE IF EXISTS  "staging."index_column_from_source";
+DROP TABLE IF EXISTS  "staging."src_table_entity_from_source";
+DROP TABLE IF EXISTS  "staging."table_privileges_from_source";
+DROP TABLE IF EXISTS  "staging."column_metadata_from_source";
+
 -- Drop schemas section --------------------------------------------------- 
 
 DROP SCHEMA IF EXISTS "kosh"
@@ -2482,7 +2487,7 @@ CREATE TABLE "kosh"."web_endpoint_entity"(
 ALTER TABLE "kosh"."web_endpoint_entity" ADD CONSTRAINT "Key19" PRIMARY KEY ("datastore_id","component_id","entity_id","crawl_id")
 ;
 
-STAGING TABLES
+-- STAGING TABLES
 
 Create  table staging.column_metadata_from_source (
     datastore_id                   INT8                          ,
@@ -2599,7 +2604,7 @@ COMMENT ON COLUMN "staging"."src_table_entity_from_source"."table_type_owner" IS
 ;
 
 
--- Create Table staging_v3.table_privileges_from_source
+-- Create Table staging.table_privileges_from_source
 
 Create  table staging.table_privileges_from_source (
     datastore_id                   INT8                          ,
