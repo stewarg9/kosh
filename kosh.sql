@@ -49,8 +49,6 @@ ALTER TABLE "kosh"."data_processing_stats" DROP CONSTRAINT IF EXISTS "Relationsh
 ;
 ALTER TABLE "kosh"."bot_status" DROP CONSTRAINT IF EXISTS "Relationship36"
 ;
-ALTER TABLE "kosh"."errormessages" DROP CONSTRAINT IF EXISTS "Relationship32"
-;
 ALTER TABLE "kosh"."unstructured_entity" DROP CONSTRAINT IF EXISTS "Relationship10"
 ;
 ALTER TABLE "kosh"."unstructured_component" DROP CONSTRAINT IF EXISTS "Relationship9"
@@ -114,8 +112,6 @@ ALTER TABLE "kosh"."job_metadata" DROP CONSTRAINT IF EXISTS "Key40"
 ALTER TABLE "kosh"."errors" DROP CONSTRAINT IF EXISTS "Key39"
 ;
 ALTER TABLE "kosh"."errors" DROP CONSTRAINT IF EXISTS "error_id"
-;
-ALTER TABLE "kosh"."errormessages" DROP CONSTRAINT IF EXISTS "UUID"
 ;
 ALTER TABLE "kosh"."data_processing_stats" DROP CONSTRAINT IF EXISTS "Key38"
 ;
@@ -195,12 +191,6 @@ DROP INDEX IF EXISTS "kosh"."IX_Relationship47"
 ;
 DROP INDEX IF EXISTS "kosh"."IX_JobId"
 ;
-DROP INDEX IF EXISTS "kosh"."IX_ErrorMessages_Errorid"
-;
-DROP INDEX IF EXISTS "kosh"."IX_ErrorMessages_Name"
-;
-DROP INDEX IF EXISTS "kosh"."IX_errormsgs_to_errors"
-;
 DROP INDEX IF EXISTS "kosh"."IX_dataprocessingstats_etlname"
 ;
 DROP INDEX IF EXISTS "kosh"."IX_botstatus_uuid"
@@ -262,8 +252,6 @@ DROP TABLE IF EXISTS "kosh"."table_load_stats"
 DROP TABLE IF EXISTS "kosh"."job_metadata"
 ;
 DROP TABLE IF EXISTS "kosh"."errors"
-;
-DROP TABLE IF EXISTS "kosh"."errormessages"
 ;
 DROP TABLE IF EXISTS "kosh"."data_processing_stats"
 ;
@@ -1552,45 +1540,6 @@ CREATE INDEX "IX_dataprocessingstats_etlname" ON "kosh"."data_processing_stats" 
 ALTER TABLE "kosh"."data_processing_stats" ADD CONSTRAINT "Key38" PRIMARY KEY ("etl_name")
 ;
 
--- Table kosh errormessages
-
-CREATE TABLE "kosh"."errormessages"(
- "uuid" UUID NOT NULL,
- "name" Text NOT NULL,
- "error_id" Bigint NOT NULL,
- "crt_by" Text NOT NULL,
- "crt_ts" Timestamp NOT NULL,
- "mod_by" Text,
- "mod_ts" Timestamp
-)
-;
-COMMENT ON COLUMN "kosh"."errormessages"."uuid" IS 'Transaction UUID'
-;
-COMMENT ON COLUMN "kosh"."errormessages"."name" IS 'Name of the bot tied to the uuid'
-;
-COMMENT ON COLUMN "kosh"."errormessages"."error_id" IS 'Error Id of the error message encountered'
-;
-COMMENT ON COLUMN "kosh"."errormessages"."crt_by" IS 'The process or person who created the record.'
-;
-COMMENT ON COLUMN "kosh"."errormessages"."crt_ts" IS 'The time of record creation.'
-;
-COMMENT ON COLUMN "kosh"."errormessages"."mod_by" IS 'The process or person who modified the record.'
-;
-COMMENT ON COLUMN "kosh"."errormessages"."mod_ts" IS 'The time of record modification.'
-;
--- Create indexes for table kosh errormessages
-
-
-CREATE INDEX "IX_ErrorMessages_Name" ON "kosh"."errormessages" ("name")
-;
-
-CREATE INDEX "IX_errormsgs_to_errors" ON "kosh"."errormessages" ("error_id")
-;
-
--- Add keys for table kosh errormessages
-
-ALTER TABLE "kosh"."errormessages" ADD CONSTRAINT "UUID" PRIMARY KEY ("uuid","name")
-;
 
 -- Table kosh errors
 
@@ -2336,9 +2285,6 @@ ALTER TABLE "kosh"."unstructured_component" ADD CONSTRAINT "Relationship9" FOREI
 ;
 
 ALTER TABLE "kosh"."unstructured_entity" ADD CONSTRAINT "Relationship10" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."unstructured_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."errormessages" ADD CONSTRAINT "Relationship32" FOREIGN KEY ("error_id") REFERENCES "kosh"."errors" ("error_id") ON DELETE SET NULL ON UPDATE CASCADE
 ;
 
 ALTER TABLE "kosh"."bot_status" ADD CONSTRAINT "Relationship36" FOREIGN KEY ("uuid", "name") REFERENCES "kosh"."bot_registry" ("uuid", "name") ON DELETE NO ACTION ON UPDATE NO ACTION
