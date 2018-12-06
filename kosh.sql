@@ -61,8 +61,6 @@ ALTER TABLE "kosh"."column_frequency" DROP CONSTRAINT IF EXISTS "colprof to colf
 ;
 ALTER TABLE "kosh"."column_profile" DROP CONSTRAINT IF EXISTS "tableentity to colprof"
 ;
-ALTER TABLE "kosh"."table_stats" DROP CONSTRAINT IF EXISTS "tableentity to tablestats"
-;
 ALTER TABLE "kosh"."table_privileges" DROP CONSTRAINT IF EXISTS "tableentity to tablepriv"
 ;
 ALTER TABLE "kosh"."column_metadata" DROP CONSTRAINT IF EXISTS "tabletocolumnmeta"
@@ -150,8 +148,6 @@ ALTER TABLE "kosh"."file_system_component" DROP CONSTRAINT IF EXISTS "Key16"
 ALTER TABLE "kosh"."column_frequency" DROP CONSTRAINT IF EXISTS "Key14"
 ;
 ALTER TABLE "kosh"."column_profile" DROP CONSTRAINT IF EXISTS "Key13"
-;
-ALTER TABLE "kosh"."table_stats" DROP CONSTRAINT IF EXISTS "Key12"
 ;
 ALTER TABLE "kosh"."table_privileges" DROP CONSTRAINT IF EXISTS "Key11"
 ;
@@ -290,8 +286,6 @@ DROP TABLE IF EXISTS "kosh"."file_system_component"
 DROP TABLE IF EXISTS "kosh"."column_frequency"
 ;
 DROP TABLE IF EXISTS "kosh"."column_profile"
-;
-DROP TABLE IF EXISTS "kosh"."table_stats"
 ;
 DROP TABLE IF EXISTS "kosh"."table_privileges"
 ;
@@ -962,47 +956,6 @@ COMMENT ON COLUMN "kosh"."table_privileges"."mod_ts" IS 'Indicates the last time
 ALTER TABLE "kosh"."table_privileges" ADD CONSTRAINT "Key11" PRIMARY KEY ("datastore_id","component_id","instance_name","schema_name","table_id","grantee","grantor","privilege_type","valid_from_ts")
 ;
 
--- Table kosh table_stats
-
-CREATE TABLE "kosh"."table_stats"(
- "datastore_id" Bigint NOT NULL,
- "component_id" Bigint NOT NULL,
- "instance_name" Text NOT NULL,
- "schema_name" Text NOT NULL,
- "table_id" Bigint NOT NULL,
- "job_id" Bigint NOT NULL,
- "valid_from_ts" Timestamp NOT NULL,
- "metatags" Json,
- "crt_by" Text NOT NULL,
- "crt_ts" Timestamp NOT NULL,
- "mod_by" Text,
- "mod_ts" Timestamp
-)
-;
-COMMENT ON COLUMN "kosh"."table_stats"."datastore_id" IS 'see parent'
-;
-COMMENT ON COLUMN "kosh"."table_stats"."component_id" IS 'just a unique identifier for this component which allows it to exist in a relational world -lol'
-;
-COMMENT ON COLUMN "kosh"."table_stats"."instance_name" IS 'The name that specifies a particular database instance where the source component is located.'
-;
-COMMENT ON COLUMN "kosh"."table_stats"."schema_name" IS 'The schema which is related to relational component'
-;
-COMMENT ON COLUMN "kosh"."table_stats"."table_id" IS 'A unique id given to a table '
-;
-COMMENT ON COLUMN "kosh"."table_stats"."valid_from_ts" IS 'Indicates when the record is inserted.'
-;
-COMMENT ON COLUMN "kosh"."table_stats"."crt_by" IS 'Indicates the process or entity that created the record'
-;
-COMMENT ON COLUMN "kosh"."table_stats"."crt_ts" IS 'The time at which the record was created'
-;
-COMMENT ON COLUMN "kosh"."table_stats"."mod_by" IS 'Indicates the process or entity that modified the record.'
-;
-COMMENT ON COLUMN "kosh"."table_stats"."mod_ts" IS 'Indicates the last time the record was modified.'
-;
--- Add keys for table kosh table_stats
-
-ALTER TABLE "kosh"."table_stats" ADD CONSTRAINT "Key12" PRIMARY KEY ("datastore_id","component_id","instance_name","schema_name","table_id","job_id","valid_from_ts")
-;
 
 -- Table kosh column_profile
 
@@ -2358,9 +2311,6 @@ ALTER TABLE "kosh"."datastore_component" ADD CONSTRAINT "conproftodatacomp" FORE
 ALTER TABLE "kosh"."table_entity" ADD CONSTRAINT "relcomp to tableentity" FOREIGN KEY ("datastore_id", "component_id", "instance_name", "schema_name") REFERENCES "kosh"."relational_component" ("datastore_id", "component_id", "instance_name", "schema_name") ON DELETE NO ACTION ON UPDATE NO ACTION
 ;
 
-
-ALTER TABLE "kosh"."table_stats" ADD CONSTRAINT "tableentity to tablestats" FOREIGN KEY ("datastore_id", "component_id", "instance_name", "schema_name", "table_id","valid_from_ts") REFERENCES "kosh"."table_entity" ("datastore_id", "component_id", "instance_name", "schema_name", "table_id","valid_from_ts") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
 
 ALTER TABLE "kosh"."column_profile" ADD CONSTRAINT "tableentity to colprof" FOREIGN KEY ("datastore_id", "component_id", "instance_name", "schema_name", "table_id","valid_from_ts") REFERENCES "kosh"."table_entity" ("datastore_id", "component_id", "instance_name", "schema_name", "table_id","valid_from_ts") ON DELETE NO ACTION ON UPDATE NO ACTION
 ;
