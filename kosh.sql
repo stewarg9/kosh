@@ -531,7 +531,7 @@ COMMENT ON COLUMN "kosh"."relational_component"."crt_ts" IS 'The time at which t
 ;
 COMMENT ON COLUMN "kosh"."relational_component"."mod_by" IS 'Indicates the process or entity that modified the record.'
 ;
-COMMENT ON COLUMN "kosh"."relational_component"."mod_ts" IS 'Indicates the last time the record was modified.'
+COMMENT ON COLUMN "kosh"."relational_component"."mod_ts" IS 'Indicates the last time the record was modified.';
 
 -- Add keys for table kosh relational_component
 
