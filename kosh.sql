@@ -135,7 +135,7 @@ ALTER TABLE "kosh"."unstructured_component" DROP CONSTRAINT IF EXISTS "Key20"
 ;
 ALTER TABLE "kosh"."web_endpoint_entity" DROP CONSTRAINT IF EXISTS "Key19"
 ;
-ALTER TABLE "kosh"."web_endpoint_component" DROP CONSTRAINT IF EXISTS "Key18"
+ALTER TABLE "kosh"."web_endpoint_component" DROP CONSTRAINT IF EXISTS "Key18" CASCADE
 ;
 ALTER TABLE "kosh"."file_linux_entity" DROP CONSTRAINT IF EXISTS "Key172"
 ;
@@ -161,7 +161,7 @@ ALTER TABLE "kosh"."connection_profile" DROP CONSTRAINT IF EXISTS "Key6"
 ;
 ALTER TABLE "kosh"."relational_component" DROP CONSTRAINT IF EXISTS "Key5"
 ;
-ALTER TABLE "kosh"."datastore_component" DROP CONSTRAINT IF EXISTS "Key4"
+ALTER TABLE "kosh"."datastore_component" DROP CONSTRAINT IF EXISTS "Key4" CASCADE
 ;
 ALTER TABLE "kosh"."datastore_contact" DROP CONSTRAINT IF EXISTS "datastore_id1"
 ;
@@ -298,19 +298,26 @@ DROP TABLE IF EXISTS "kosh"."datastore_domain"
 DROP TABLE IF EXISTS "kosh"."datastore_inventory"
 ;
 
-DROP TABLE IF EXISTS  "staging."index_column_from_source";
-DROP TABLE IF EXISTS  "staging."src_table_entity_from_source";
-DROP TABLE IF EXISTS  "staging."table_privileges_from_source";
-DROP TABLE IF EXISTS  "staging."column_metadata_from_source";
+DROP TABLE IF EXISTS  "staging"."index_column_from_source";
+DROP TABLE IF EXISTS  "staging"."src_table_entity_from_source";
+DROP TABLE IF EXISTS  "staging"."table_privileges_from_source";
+DROP TABLE IF EXISTS  "staging"."column_metadata_from_source";
 
 -- Drop schemas section --------------------------------------------------- 
 
-DROP SCHEMA IF EXISTS "kosh"
+DROP SCHEMA "kosh" cascade
 ;
+
+DROP SCHEMA "staging" cascade
+;
+
 
 -- Create schemas section -------------------------------------------------
 
 CREATE SCHEMA "kosh"
+;
+
+CREATE SCHEMA "staging"
 ;
 
 -- Create sequences section -------------------------------------------------
@@ -335,18 +342,21 @@ CREATE SEQUENCE "kosh"."source_table_id_seq"
 
 -- Table kosh datastore_inventory
 
+drop table "kosh"."datastore_inventory";
+
 CREATE TABLE "kosh"."datastore_inventory"(
- "datastore_id" bigSerial NOT NULL,
+ "datastore_id" bigSerial NOT NULL ,
  "inventory_id" Text,
  "source_name" Text NOT NULL,
  "description" Text,
  "documentation" Text,
- "crt_by" Text NOT NULL,
- "crt_ts" Timestamp NOT NULL,
+ "crt_by" Text NOT NULL default 'postgres',
+ "crt_ts" Timestamp NOT NULL default CURRENT_TIMESTAMP,
  "mod_by" Text,
  "mod_ts" Timestamp
 )
 ;
+
 COMMENT ON COLUMN "kosh"."datastore_inventory"."datastore_id" IS 'The source_id allows a collection of related source components to be combined into a ''virtual source'''
 ;
 COMMENT ON COLUMN "kosh"."datastore_inventory"."inventory_id" IS 'The inventory_id allows a descriptive name to be associated with the source inventory record.'
@@ -562,7 +572,7 @@ COMMENT ON COLUMN "kosh"."connection_profile"."crt_ts" IS 'The time at which the
 COMMENT ON COLUMN "kosh"."connection_profile"."mod_by" IS 'Indicates the process or entity that modified the record.'
 ;
 COMMENT ON COLUMN "kosh"."connection_profile"."mod_ts" IS 'Indicates the last time the record was modified.'
-
+;
 -- Add keys for table kosh connection_profile
 
 ALTER TABLE "kosh"."connection_profile" ADD CONSTRAINT "Key6" PRIMARY KEY ("connection_profile_id")
@@ -640,7 +650,7 @@ COMMENT ON COLUMN "kosh"."table_entity"."num_columns" IS 'number of the columns 
 ;
 COMMENT ON COLUMN "kosh"."table_entity"."table_layer" IS 'where table resides'
 ;
-COMMENT ON COLUMN "kosh"."table_entity"."table_space_name" IS 'Source name'
+COMMENT ON COLUMN "kosh"."table_entity"."tablespace_name" IS 'Source name'
 ;
 COMMENT ON COLUMN "kosh"."table_entity"."table_format" IS 'format of the table'
 ;
@@ -660,7 +670,7 @@ COMMENT ON COLUMN "kosh"."table_entity"."crawl_id" IS 'The crawl instance associ
 ;
 COMMENT ON COLUMN "kosh"."table_entity"."prev_crawl_id" IS 'The crawl instance associated with an older record for this table meta-data.'
 ;
-COMMENT ON COLUMN "kosh"."table_entity"."linneage_uuid" IS 'A unique identifier for a lineage document'
+COMMENT ON COLUMN "kosh"."table_entity"."lineage_uuid" IS 'A unique identifier for a lineage document'
 ;
 COMMENT ON COLUMN "kosh"."table_entity"."crt_by" IS 'Indicates the process or entity that created the record'
 ;
@@ -1474,7 +1484,7 @@ COMMENT ON COLUMN "kosh"."bot_registry"."name" IS 'Name of the bot tied to the u
 ;
 COMMENT ON COLUMN "kosh"."bot_registry"."state" IS 'state of the bot'
 ;
-COMMENT ON COLUMN "kosh"."bot_registry"."job_profile" IS 'Status of the job'
+COMMENT ON COLUMN "kosh"."bot_status"."job_profile" IS 'Status of the job'
 ;
 COMMENT ON COLUMN "kosh"."bot_registry"."crt_by" IS 'The process or person who created the record.'
 ;
@@ -2209,10 +2219,12 @@ COMMENT ON COLUMN "kosh"."data_spider_verification"."mod_ts" IS 'Indicates the l
 
 -- Table kosh.log_table
 
+--drop table "kosh"."log_table"
+
 Create  table "kosh"."log_table" (
     "log_id"                         INT8                          ,
     "log_type"                       VARCHAR(128)                  ,
-    "log_message_type "              VARCHAR(128)                  ,
+    "log_message_type"              VARCHAR(128)                  ,
     "log_message"                    TEXT                          ,
     "added_ts"                       TIMESTAMP             ,
     "crt_by"  VARCHAR(128) NOT NULL,
@@ -2238,100 +2250,6 @@ COMMENT ON COLUMN "kosh"."log_table"."mod_by" IS 'Indicates the process or entit
 ;
 COMMENT ON COLUMN "kosh"."log_table"."mod_ts" IS 'Indicates the last time the record was modified.'
 ;
-
-
-
-
--- Create foreign keys (relationships) section ------------------------------------------------- 
-
-ALTER TABLE "kosh"."datastore_domain" ADD CONSTRAINT "domain_assignments" FOREIGN KEY ("datastore_id") REFERENCES "kosh"."datastore_inventory" ("datastore_id") ON DELETE CASCADE ON UPDATE NO ACTION
-;
-
-COMMENT ON CONSTRAINT "domain_assignments" ON "kosh"."datastore_domain" IS 'An inventoried source can have multiple domains associated with it.  It is not mandatory that a source is associated with a domain.'
-;
-
-ALTER TABLE "kosh"."datastore_contact" ADD CONSTRAINT "datainv to child entity" FOREIGN KEY ("datastore_id") REFERENCES "kosh"."datastore_inventory" ("datastore_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."datastore_component" ADD CONSTRAINT "source_2_component" FOREIGN KEY ("datastore_id") REFERENCES "kosh"."datastore_inventory" ("datastore_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."relational_component" ADD CONSTRAINT "Relationship4" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."datastore_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."datastore_component" ADD CONSTRAINT "conproftodatacomp" FOREIGN KEY ("connection_profile_id") REFERENCES "kosh"."connection_profile" ("connection_profile_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."table_entity" ADD CONSTRAINT "relcomp to tableentity" FOREIGN KEY ("datastore_id", "component_id", "instance_name", "schema_name") REFERENCES "kosh"."relational_component" ("datastore_id", "component_id", "instance_name", "schema_name") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-
-ALTER TABLE "kosh"."column_profile" ADD CONSTRAINT "tableentity to colprof" FOREIGN KEY ("datastore_id", "component_id", "instance_name", "schema_name", "table_id","valid_from_ts") REFERENCES "kosh"."table_entity" ("datastore_id", "component_id", "instance_name", "schema_name", "table_id","valid_from_ts") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."column_frequency" ADD CONSTRAINT "colprof to colfreq" FOREIGN KEY ("datastore_id", "component_id", "instance_name", "schema_name", "table_id", "column_id", "profile_id","valid_from_ts") REFERENCES "kosh"."column_profile" ("datastore_id", "component_id", "instance_name", "schema_name", "table_id", "column_id", "profile_id","valid_from_ts") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."file_system_component" ADD CONSTRAINT "datacomp to filesyscomp" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."datastore_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."web_endpoint_component" ADD CONSTRAINT "Relationship5" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."datastore_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."web_endpoint_entity" ADD CONSTRAINT "Relationship6" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."web_endpoint_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."unstructured_component" ADD CONSTRAINT "Relationship9" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."datastore_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."unstructured_entity" ADD CONSTRAINT "Relationship10" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."unstructured_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."bot_status" ADD CONSTRAINT "Relationship36" FOREIGN KEY ("uuid", "name") REFERENCES "kosh"."bot_registry" ("uuid", "name") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."data_processing_stats" ADD CONSTRAINT "Relationship37" FOREIGN KEY ("uuid", "name") REFERENCES "kosh"."bot_registry" ("uuid", "name") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."table_load_stats" ADD CONSTRAINT "Relationship38" FOREIGN KEY ("job_id") REFERENCES "kosh"."job_metadata" ("job_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."job_run_stats" ADD CONSTRAINT "Relationship39" FOREIGN KEY ("job_id") REFERENCES "kosh"."job_metadata" ("job_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."table_load_result" ADD CONSTRAINT "Relationship40" FOREIGN KEY ("job_id") REFERENCES "kosh"."job_metadata" ("job_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-
-
-ALTER TABLE "kosh"."structured_jobtotable" ADD CONSTRAINT "Relationship44" FOREIGN KEY ("job_id") REFERENCES "kosh"."job_metadata" ("job_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."job_run_stats" ADD CONSTRAINT "Relationship47" FOREIGN KEY ("process_id", "dest_table_id","crt_ts") REFERENCES "kosh"."table_load_stats" ("process_id", "dest_table_id","crt_ts") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-
-ALTER TABLE "kosh"."table_scheduler" ADD CONSTRAINT "Relationship53" FOREIGN KEY ("datastore_id", "component_id", "instance_name", "schema_name", "table_id","valid_from_ts") REFERENCES "kosh"."table_entity" ("datastore_id", "component_id", "instance_name", "schema_name", "table_id","valid_from_ts") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."file_scheduler" ADD CONSTRAINT "Relationship54" FOREIGN KEY ("entity_id") REFERENCES "kosh"."file_linux_entity" ("entity_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."file_window_entity" ADD CONSTRAINT "Relationship58" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."file_system_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."file_linux_entity" ADD CONSTRAINT "Relationship59" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."file_system_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."unstructured_load_stats" ADD CONSTRAINT "Relationship62" FOREIGN KEY ("datastore_id", "component_id", "entity_id") REFERENCES "kosh"."unstructured_entity" ("datastore_id", "component_id", "entity_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."file_linux_load_stats" ADD CONSTRAINT "Relationship63" FOREIGN KEY ("entity_id") REFERENCES "kosh"."file_linux_entity" ("entity_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
-ALTER TABLE "kosh"."file_window_load_stats" ADD CONSTRAINT "Relationship64" FOREIGN KEY ("entity_id", "datastore_id", "component_id") REFERENCES "kosh"."file_window_entity" ("entity_id", "datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
-;
-
 
 
 -- Create Table kosh.error_table
@@ -2433,6 +2351,103 @@ CREATE TABLE "kosh"."web_endpoint_entity"(
 ALTER TABLE "kosh"."web_endpoint_entity" ADD CONSTRAINT "Key19" PRIMARY KEY ("datastore_id","component_id","entity_id","crawl_id")
 ;
 
+
+
+
+
+-- Create foreign keys (relationships) section ------------------------------------------------- 
+
+ALTER TABLE "kosh"."datastore_domain" ADD CONSTRAINT "domain_assignments" FOREIGN KEY ("datastore_id") REFERENCES "kosh"."datastore_inventory" ("datastore_id") ON DELETE CASCADE ON UPDATE NO ACTION
+;
+
+COMMENT ON CONSTRAINT "domain_assignments" ON "kosh"."datastore_domain" IS 'An inventoried source can have multiple domains associated with it.  It is not mandatory that a source is associated with a domain.'
+;
+
+ALTER TABLE "kosh"."datastore_contact" ADD CONSTRAINT "datainv to child entity" FOREIGN KEY ("datastore_id") REFERENCES "kosh"."datastore_inventory" ("datastore_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."datastore_component" ADD CONSTRAINT "source_2_component" FOREIGN KEY ("datastore_id") REFERENCES "kosh"."datastore_inventory" ("datastore_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."relational_component" ADD CONSTRAINT "Relationship4" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."datastore_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."datastore_component" ADD CONSTRAINT "conproftodatacomp" FOREIGN KEY ("connection_profile_id") REFERENCES "kosh"."connection_profile" ("connection_profile_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."table_entity" ADD CONSTRAINT "relcomp to tableentity" FOREIGN KEY ("datastore_id", "component_id", "instance_name", "schema_name") REFERENCES "kosh"."relational_component" ("datastore_id", "component_id", "instance_name", "schema_name") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+
+ALTER TABLE "kosh"."column_profile" ADD CONSTRAINT "tableentity to colprof" FOREIGN KEY ("datastore_id", "component_id", "instance_name", "schema_name", "table_id","valid_from_ts") REFERENCES "kosh"."table_entity" ("datastore_id", "component_id", "instance_name", "schema_name", "table_id","valid_from_ts") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."column_frequency" ADD CONSTRAINT "colprof to colfreq" FOREIGN KEY ("datastore_id", "component_id", "instance_name", "schema_name", "table_id", "column_id", "profile_id","valid_from_ts") REFERENCES "kosh"."column_profile" ("datastore_id", "component_id", "instance_name", "schema_name", "table_id", "column_id", "profile_id","valid_from_ts") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."file_system_component" ADD CONSTRAINT "datacomp to filesyscomp" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."datastore_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."web_endpoint_component" ADD CONSTRAINT "Relationship5" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."datastore_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."web_endpoint_entity" ADD CONSTRAINT "Relationship6" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."web_endpoint_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."unstructured_component" ADD CONSTRAINT "Relationship9" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."datastore_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."unstructured_entity" ADD CONSTRAINT "Relationship10" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."unstructured_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."bot_status" ADD CONSTRAINT "Relationship36" FOREIGN KEY ("uuid", "name") REFERENCES "kosh"."bot_registry" ("uuid", "name") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."data_processing_stats" ADD CONSTRAINT "Relationship37" FOREIGN KEY ("uuid", "name") REFERENCES "kosh"."bot_registry" ("uuid", "name") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."table_load_stats" ADD CONSTRAINT "Relationship38" FOREIGN KEY ("job_id") REFERENCES "kosh"."job_metadata" ("job_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."job_run_stats" ADD CONSTRAINT "Relationship39" FOREIGN KEY ("job_id") REFERENCES "kosh"."job_metadata" ("job_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."table_load_result" ADD CONSTRAINT "Relationship40" FOREIGN KEY ("job_id") REFERENCES "kosh"."job_metadata" ("job_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+
+
+ALTER TABLE "kosh"."structured_jobtotable" ADD CONSTRAINT "Relationship44" FOREIGN KEY ("job_id") REFERENCES "kosh"."job_metadata" ("job_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."job_run_stats" ADD CONSTRAINT "Relationship47" FOREIGN KEY ("process_id", "dest_table_id","crt_ts") REFERENCES "kosh"."table_load_stats" ("process_id", "dest_table_id","crt_ts") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+
+ALTER TABLE "kosh"."table_scheduler" ADD CONSTRAINT "Relationship53" FOREIGN KEY ("datastore_id", "component_id", "instance_name", "schema_name", "table_id","valid_from_ts") REFERENCES "kosh"."table_entity" ("datastore_id", "component_id", "instance_name", "schema_name", "table_id","valid_from_ts") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."file_scheduler" ADD CONSTRAINT "Relationship54" FOREIGN KEY ("entity_id") REFERENCES "kosh"."file_linux_entity" ("entity_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."file_window_entity" ADD CONSTRAINT "Relationship58" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."file_system_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."file_linux_entity" ADD CONSTRAINT "Relationship59" FOREIGN KEY ("datastore_id", "component_id") REFERENCES "kosh"."file_system_component" ("datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."unstructured_load_stats" ADD CONSTRAINT "Relationship62" FOREIGN KEY ("datastore_id", "component_id", "entity_id") REFERENCES "kosh"."unstructured_entity" ("datastore_id", "component_id", "entity_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."file_linux_load_stats" ADD CONSTRAINT "Relationship63" FOREIGN KEY ("entity_id") REFERENCES "kosh"."file_linux_entity" ("entity_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+ALTER TABLE "kosh"."file_window_load_stats" ADD CONSTRAINT "Relationship64" FOREIGN KEY ("entity_id", "datastore_id", "component_id") REFERENCES "kosh"."file_window_entity" ("entity_id", "datastore_id", "component_id") ON DELETE NO ACTION ON UPDATE NO ACTION
+;
+
+
+
+
 -- STAGING TABLES
 
 Create  table staging.column_metadata_from_source (
@@ -2475,6 +2490,7 @@ with(oids=false);
 
 -- Create Table staging.src_table_entity_from_source
 
+
 Create  table staging.src_table_entity_from_source (
     datastore_id                   INT8                          ,
     component_id                   INT8                          ,
@@ -2494,7 +2510,7 @@ Create  table staging.src_table_entity_from_source (
     table_size                     FLOAT4                        ,
     table_layer                    TEXT                          ,
     location_path                  TEXT                          ,
-    table_space_name                TEXT                          ,
+    tablespace_name                TEXT                          ,
     table_type                     TEXT                          ,
     table_format                   TEXT                          ,
     is_encrypted                   BOOL                          ,
@@ -2510,8 +2526,8 @@ COMMENT ON COLUMN "staging"."src_table_entity_from_source"."instance_name" IS 'T
 ;
 COMMENT ON COLUMN "staging"."src_table_entity_from_source"."schema_name" IS 'The schema which is related to relational component'
 ;
-COMMENT ON COLUMN "staging"."src_table_entity_from_source"."table_id" IS 'A unique id given to a table '
-;
+--COMMENT ON COLUMN "staging"."src_table_entity_from_source"."table_id" IS 'A unique id given to a table '
+--;
 COMMENT ON COLUMN "staging"."src_table_entity_from_source"."table_name" IS 'name of the table '
 ;
 COMMENT ON COLUMN "staging"."src_table_entity_from_source"."table_owner" IS 'Who created the table in the source level'
@@ -2536,7 +2552,7 @@ COMMENT ON COLUMN "staging"."src_table_entity_from_source"."num_columns" IS 'num
 ;
 COMMENT ON COLUMN "staging"."src_table_entity_from_source"."table_layer" IS 'where table resides'
 ;
-COMMENT ON COLUMN "staging"."src_table_entity_from_source"."table_space_name" IS 'Source name'
+COMMENT ON COLUMN "staging"."src_table_entity_from_source"."tablespace_name" IS 'Source name'
 ;
 COMMENT ON COLUMN "staging"."src_table_entity_from_source"."table_format" IS 'format of the table'
 ;
@@ -2574,3 +2590,4 @@ COMMENT ON COLUMN "staging"."table_privileges_from_source"."schema_name" IS 'The
 ;
 COMMENT ON COLUMN "staging"."table_privileges_from_source"."table_name" IS 'name of the table '
 ;
+
